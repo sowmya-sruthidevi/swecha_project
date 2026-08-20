@@ -1,25 +1,44 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Twitter, Github, Linkedin, Heart } from 'lucide-react';
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const navigate = useNavigate();
 
   const links = {
     Product: [
-      { name: 'Home', href: '/' },
-      { name: 'Explore Groups', href: '/explore' },
-      { name: 'Features', href: '/#features' },
+      { name: 'Home', href: '/', hash: null },
+      { name: 'Explore Groups', href: '/explore', hash: null },
+      { name: 'Features', href: '/', hash: 'features' },
     ],
     Account: [
-      { name: 'Login', href: '/login' },
-      { name: 'Sign Up', href: '/signup' },
-      { name: 'Profile', href: '/profile' },
+      { name: 'Login', href: '/login', hash: null },
+      { name: 'Sign Up', href: '/signup', hash: null },
+      { name: 'Profile', href: '/profile', hash: null },
     ],
     Company: [
-      { name: 'About', href: '/#about' },
-      { name: 'Blog', href: '#' },
-      { name: 'Contact', href: '#' },
+      { name: 'About', href: '/', hash: 'about' },
+      { name: 'Blog', href: '#', hash: null, external: true },
+      { name: 'Contact', href: '#', hash: null, external: true },
     ],
+  };
+
+  const handleClick = (item) => {
+    if (item.external) return;
+    if (item.hash) {
+      if (window.location.pathname === '/') {
+        const el = document.getElementById(item.hash);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        navigate('/');
+        setTimeout(() => {
+          const el = document.getElementById(item.hash);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+      }
+    } else {
+      navigate(item.href);
+    }
   };
 
   return (
@@ -58,12 +77,21 @@ export default function Footer() {
               <ul className="space-y-3">
                 {items.map((item) => (
                   <li key={item.name}>
-                    <Link
-                      to={item.href}
-                      className="text-sm text-gray-400 hover:text-white transition-colors"
-                    >
-                      {item.name}
-                    </Link>
+                    {item.external ? (
+                      <a
+                        href={item.href}
+                        className="text-sm text-gray-400 hover:text-white transition-colors"
+                      >
+                        {item.name}
+                      </a>
+                    ) : (
+                      <button
+                        onClick={() => handleClick(item)}
+                        className="text-sm text-gray-400 hover:text-white transition-colors text-left"
+                      >
+                        {item.name}
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>

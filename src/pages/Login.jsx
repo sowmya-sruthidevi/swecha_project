@@ -39,7 +39,7 @@ export default function Login() {
       toast.success('Welcome back! 🎉');
       setTimeout(() => navigate('/dashboard'), 500);
     } catch (err) {
-      const msg = err.response?.data?.message || 'Invalid email or password';
+      const msg = err.response?.data?.message || 'The details are incorrect';
       toast.error(msg);
     } finally {
       setLoading(false);

@@ -4,8 +4,67 @@ A full-stack MERN (MongoDB + Express + React + Node.js) application that helps s
 
 ---
 
+## 🚀 Quick Start — Running Commands
+
+The app needs **two terminals**: one for the backend (API) and one for the frontend (UI). Make sure dependencies are installed first (see [Installation & Setup](#installation--setup)).
+
+### 1️⃣ Install Dependencies (First Time Only)
+
+```powershell
+# Install backend dependencies
+cd c:\Users\SRUTHI\Documents\trae_projects\group\backend
+npm.cmd install
+
+# Install frontend dependencies
+cd c:\Users\SRUTHI\Documents\trae_projects\group
+npm.cmd install
+```
+
+### 2️⃣ Start the Backend (Terminal 1 — Port 5000)
+
+```powershell
+cd c:\Users\SRUTHI\Documents\trae_projects\group\backend
+npm.cmd run dev
+```
+
+Wait for these messages before starting the frontend:
+```
+✅ Server running in development mode on port 5000
+✅ MongoDB connected
+✅ Database: study_group_finder
+```
+
+Health check: open `http://localhost:5000/api/health` in your browser.
+
+### 3️⃣ Start the Frontend (Terminal 2 — Port 3000)
+
+```powershell
+cd c:\Users\SRUTHI\Documents\trae_projects\group
+npm.cmd run dev
+```
+
+Then open **http://localhost:3000** in your browser.
+
+### 📋 All Commands at a Glance
+
+| What to do                  | Command (run in correct folder)                                                |
+| --------------------------- | ------------------------------------------------------------------------------ |
+| Install backend deps        | `cd backend` → `npm.cmd install`                                               |
+| Install frontend deps       | `cd ..` → `npm.cmd install`                                                    |
+| **Run backend (dev)**       | `cd backend` → `npm.cmd run dev`  ⬅️ **most used**                             |
+| **Run frontend (dev)**      | `cd ..` → `npm.cmd run dev`      ⬅️ **most used**                              |
+| Seed sample data            | `cd backend` → `npm.cmd run seed`                                              |
+| Build frontend (production) | `cd ..` → `npm.cmd run build`                                                  |
+| Preview production build    | `npm.cmd run preview`                                                          |
+| Run backend (production)    | `cd backend` → `set NODE_ENV=production` → `npm start`                        |
+
+> 💡 **Windows PowerShell Note:** Always use `npm.cmd` instead of `npm` to avoid script execution policy errors (`PSSecurityException`). Do **not** use `&&` to chain commands — run each line separately, or use `;` on PowerShell 7+.
+
+---
+
 ## Table of Contents
 
+0. [🚀 Quick Start — Running Commands](#-quick-start--running-commands)
 1. [Project Overview](#project-overview)
 2. [Tech Stack](#tech-stack)
 3. [Key Features](#key-features)

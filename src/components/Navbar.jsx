@@ -9,11 +9,33 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const navLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'Explore Groups', href: '/explore' },
-    { name: 'Features', href: '/#features' },
-    { name: 'About', href: '/#about' },
+    { name: 'Home', href: '/', hash: null },
+    { name: 'Explore Groups', href: '/explore', hash: null },
+    { name: 'Features', href: '/', hash: 'features' },
+    { name: 'About', href: '/', hash: 'about' },
   ];
+
+  const handleNavClick = (link) => {
+    setIsOpen(false);
+    if (link.hash) {
+      if (window.location.pathname === '/') {
+        const el = document.getElementById(link.hash);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } else {
+        navigate('/');
+        setTimeout(() => {
+          const el = document.getElementById(link.hash);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 150);
+      }
+    } else {
+      navigate(link.href);
+    }
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
@@ -30,13 +52,13 @@ export default function Navbar() {
 
           <div className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
-              <Link
+              <button
                 key={link.name}
-                to={link.href}
+                onClick={() => handleNavClick(link)}
                 className="text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors duration-200"
               >
                 {link.name}
-              </Link>
+              </button>
             ))}
           </div>
 
@@ -87,14 +109,13 @@ export default function Navbar() {
           <div className="lg:hidden py-4 border-t border-gray-100 animate-fade-in">
             <div className="flex flex-col gap-2">
               {navLinks.map((link) => (
-                <Link
+                <button
                   key={link.name}
-                  to={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className="px-4 py-3 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:text-primary-600 transition-colors"
+                  onClick={() => handleNavClick(link)}
+                  className="px-4 py-3 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:text-primary-600 transition-colors text-left"
                 >
                   {link.name}
-                </Link>
+                </button>
               ))}
               <div className="pt-4 flex flex-col gap-3">
                 {isAuthenticated ? (

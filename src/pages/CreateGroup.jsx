@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import InputField from '../components/InputField.jsx';
 import Button from '../components/Button.jsx';
 import toast from 'react-hot-toast';
 import { groupApi } from '../services/api.js';
+import { parseTimeParts, to24Hour } from '../utils/time.js';
 import {
   Users,
   BookOpen,
@@ -16,6 +17,7 @@ import {
   Link as LinkIcon,
   Hash,
   FileText,
+  Clock,
 } from 'lucide-react';
 
 const SUBJECTS = [
@@ -37,6 +39,7 @@ export default function CreateGroup() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const defaultTime = parseTimeParts('');
   const [form, setForm] = useState({
     groupName: '',
     subject: '',
@@ -47,6 +50,27 @@ export default function CreateGroup() {
     meetingLink: '',
     maxMembers: 8,
   });
+  const [timeHhmm, setTimeHhmm] = useState(defaultTime.hhmm);
+  const [timePeriod, setTimePeriod] = useState(defaultTime.period);
+
+  useEffect(() => {
+    if (form.time) {
+      const p = parseTimeParts(form.time);
+      setTimeHhmm(p.hhmm);
+      setTimePeriod(p.period);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!timeHhmm) {
+      setForm((f) => ({ ...f, time: '' }));
+      return;
+    }
+    const t24 = to24Hour(timeHhmm, timePeriod);
+    setForm((f) => ({ ...f, time: t24 }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeHhmm, timePeriod]);
 
   const validate = () => {
     const e = {};
@@ -197,14 +221,31 @@ export default function CreateGroup() {
                     onChange={handleChange}
                     icon={Calendar}
                   />
-                  <InputField
-                    label="Time"
-                    type="time"
-                    name="time"
-                    value={form.time}
-                    onChange={handleChange}
-                    icon={Calendar}
-                  />
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-gray-400" />
+                      Time
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="time"
+                        value={timeHhmm}
+                        onChange={(e) => setTimeHhmm(e.target.value)}
+                        className="flex-1 px-4 py-3.5 rounded-xl border-2 border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 outline-none font-medium bg-white"
+                      />
+                      <select
+                        value={timePeriod}
+                        onChange={(e) => setTimePeriod(e.target.value)}
+                        className="px-4 py-3.5 rounded-xl border-2 border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 outline-none font-semibold bg-white text-gray-700 min-w-[100px]"
+                      >
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                      </select>
+                    </div>
+                    <p className="mt-2 text-sm text-gray-500">
+                      Selected: {timeHhmm ? `${timeHhmm} ${timePeriod}` : 'Not set'}
+                    </p>
+                  </div>
                   <InputField
                     label="Location"
                     name="location"
