@@ -2,11 +2,51 @@ import { PDFParse } from 'pdf-parse';
 import ChatSession from '../models/ChatSession.js';
 import ChatMessage from '../models/ChatMessage.js';
 
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+// Dynamically discover GROQ_API_KEY from environment or disk .env files
+function getGroqApiKey() {
+  if (process.env.GROQ_API_KEY && process.env.GROQ_API_KEY.trim() && process.env.GROQ_API_KEY !== 'undefined') {
+    return process.env.GROQ_API_KEY.trim();
+  }
+
+  // Attempt to read from .env files
+  const candidatePaths = [
+    path.resolve(process.cwd(), 'backend', '.env'),
+    path.resolve(process.cwd(), '.env'),
+    path.resolve(__dirname, '..', '.env'),
+    path.resolve(__dirname, '..', '..', '.env'),
+  ];
+
+  for (const envPath of candidatePaths) {
+    try {
+      if (fs.existsSync(envPath)) {
+        const fileContent = fs.readFileSync(envPath, 'utf8');
+        const match = fileContent.match(/GROQ_API_KEY\s*=\s*([^\r\n]+)/);
+        if (match && match[1]) {
+          const key = match[1].trim().replace(/^["']|["']$/g, '');
+          if (key) {
+            process.env.GROQ_API_KEY = key;
+            return key;
+          }
+        }
+      }
+    } catch {}
+  }
+
+  return '';
+}
 
 // Helper to call Groq API with fallback
 async function callGroqChat(messages, preferredModel) {
-  const apiKey = process.env.GROQ_API_KEY;
+  const apiKey = getGroqApiKey();
   if (!apiKey) {
     throw new Error('GROQ_API_KEY is not configured in the server environment. Please set GROQ_API_KEY in .env');
   }
