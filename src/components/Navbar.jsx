@@ -10,6 +10,7 @@ export default function Navbar() {
 
   const navLinks = [
     { name: 'Home', href: '/', hash: null },
+    { name: 'AI Chatbot & PDF', href: '/chatbot', hash: null, isAi: true },
     { name: 'Explore Groups', href: '/explore', hash: null },
     { name: 'Features', href: '/', hash: 'features' },
     { name: 'About', href: '/', hash: 'about' },
@@ -55,9 +56,16 @@ export default function Navbar() {
               <button
                 key={link.name}
                 onClick={() => handleNavClick(link)}
-                className="text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors duration-200"
+                className={`text-sm font-medium transition-colors duration-200 flex items-center gap-1.5 ${
+                  link.isAi
+                    ? 'text-indigo-600 hover:text-indigo-700 font-semibold px-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-200/80 shadow-sm'
+                    : 'text-gray-600 hover:text-primary-600'
+                }`}
               >
                 {link.name}
+                {link.isAi && (
+                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                )}
               </button>
             ))}
           </div>

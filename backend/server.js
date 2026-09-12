@@ -12,6 +12,7 @@ import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import groupRoutes from './routes/groupRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import chatbotRoutes from './routes/chatbotRoutes.js';
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.use(cors({
     'http://127.0.0.1:3000',
     'http://localhost:3001',
     'http://127.0.0.1:3001',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
     'https://swecha-project-ten.vercel.app'
   ],
   credentials: true
@@ -45,6 +48,7 @@ app.use('/api', authRoutes);
 app.use('/api', userRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/chatbot', chatbotRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

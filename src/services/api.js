@@ -60,4 +60,15 @@ export const notificationApi = {
   markAllAsRead: () => api.put('/notifications/mark-all-read'),
 };
 
+export const chatbotApi = {
+  sendMessage: (data) => api.post('/chatbot/chat', data),
+  uploadPdf: (formData) => api.post('/chatbot/upload-pdf', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
+  getSessions: (params) => api.get('/chatbot/sessions', { params }),
+  getSessionMessages: (sessionId) => api.get(`/chatbot/sessions/${sessionId}/messages`),
+  deleteSession: (sessionId) => api.delete(`/chatbot/sessions/${sessionId}`),
+  clearAllHistory: () => api.delete('/chatbot/clear-all'),
+};
+
 export default api;

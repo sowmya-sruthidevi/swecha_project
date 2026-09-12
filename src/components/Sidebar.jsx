@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Home, Compass, PlusCircle, Users, User, LogOut, ChevronLeft, ChevronRight, Bell } from 'lucide-react';
+import { BookOpen, Home, Compass, PlusCircle, Users, User, LogOut, ChevronLeft, ChevronRight, Bell, Bot } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
@@ -29,6 +29,7 @@ export default function Sidebar({ active }) {
 
   const menuItems = [
     { name: 'Dashboard', icon: Home, href: '/dashboard', key: 'dashboard' },
+    { name: 'AI Voice & PDF Bot', icon: Bot, href: '/chatbot', key: 'chatbot', isAi: true },
     { name: 'Explore Groups', icon: Compass, href: '/explore', key: 'explore' },
     { name: 'Create Study Group', icon: PlusCircle, href: '/create-group', key: 'create' },
     { name: 'My Study Groups', icon: Users, href: '/my-groups', key: 'mygroups' },
@@ -83,8 +84,13 @@ export default function Sidebar({ active }) {
               } ${collapsed ? 'justify-center' : ''}`}
               title={collapsed ? item.name : undefined}
             >
-              <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? '' : 'group-hover:scale-110 transition-transform'}`} />
+              <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? '' : item.isAi ? 'text-cyan-500 group-hover:scale-110 transition-transform' : 'group-hover:scale-110 transition-transform'}`} />
               {!collapsed && <span className="whitespace-nowrap flex-1">{item.name}</span>}
+              {!collapsed && item.isAi && (
+                <span className="bg-gradient-to-r from-cyan-500 to-indigo-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-xs">
+                  AI
+                </span>
+              )}
               {!collapsed && item.key === 'notifications' && unreadCount > 0 && (
                 <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                   {unreadCount}
