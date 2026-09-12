@@ -228,6 +228,28 @@ NODE_ENV=development
 
 The frontend (Vite) uses `/api/*` requests which are **proxied** to `http://localhost:5000` by Vite — no separate `.env` is required for the frontend.
 
+When deploying the whole repository to Vercel, the existing backend is exposed through the included `api/[...path].js` serverless entry point, so frontend API requests remain same-origin. Add the backend variables from the block above to the Vercel project settings, especially `MONGODB_URI` and `JWT_SECRET`, then redeploy. For a separate backend host, set `VITE_API_URL` to that host's URL instead.
+
+### Chatbot Deployment
+
+The chatbot is a separate Node/Express service in `chatbot/`. Deploy it as its own web service with `chatbot/` as the service root and the start command `npm start`. Configure these variables in that service's deployment dashboard:
+
+```
+PORT=3000
+GROQ_API_KEY=<your Groq key>
+OPENAI_API_KEY=<your OpenAI key, optional when Groq is configured>
+MONGODB_URI=<optional MongoDB URI>
+JWT_SECRET=<strong production secret>
+```
+
+Then configure the frontend deployment with the public chatbot URL:
+
+```
+VITE_CHATBOT_URL=https://your-chatbot-service.example.com
+```
+
+After changing `VITE_CHATBOT_URL`, redeploy the frontend because Vite injects `VITE_*` variables at build time. Never commit API keys or JWT secrets. The launcher uses `http://localhost:3000` only during local Vite development; in production it stays disabled until `VITE_CHATBOT_URL` is configured.
+
 ---
 
 ## Installation & Setup
