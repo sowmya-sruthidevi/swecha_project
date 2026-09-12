@@ -18,7 +18,7 @@ app.use(cors({
     'http://127.0.0.1:3000',
     'http://localhost:3001',
     'http://127.0.0.1:3001',
-https://swecha-project-ten.vercel.app  ],
+     'https://swecha-project-ten.vercel.app' ],
   credentials: true,
 }));],
   credentials: true,
