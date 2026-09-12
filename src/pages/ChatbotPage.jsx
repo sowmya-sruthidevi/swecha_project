@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import toast from 'react-hot-toast';
 import {
   Bot,
@@ -28,6 +29,131 @@ import {
 } from 'lucide-react';
 import { chatbotApi } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
+
+// Word-by-word streaming component with structured table, heading, and code styling
+function StreamingMarkdown({ content, isStreaming, onFinished, onScroll }) {
+  const [displayedText, setDisplayedText] = useState(() => (isStreaming ? '' : content));
+  const [done, setDone] = useState(!isStreaming);
+
+  useEffect(() => {
+    if (!isStreaming) {
+      setDisplayedText(content);
+      setDone(true);
+      return;
+    }
+
+    setDone(false);
+    // Split into word & space tokens to preserve formatting and newlines
+    const tokens = content.match(/\S+|\s+/g) || [content];
+    let currentIndex = 0;
+    let accumulated = '';
+
+    const interval = setInterval(() => {
+      if (currentIndex < tokens.length) {
+        accumulated += tokens[currentIndex];
+        setDisplayedText(accumulated);
+        currentIndex++;
+        if (onScroll && currentIndex % 3 === 0) {
+          onScroll('auto');
+        }
+      } else {
+        clearInterval(interval);
+        setDone(true);
+        if (onFinished) onFinished();
+        if (onScroll) onScroll('smooth');
+      }
+    }, 18); // 18ms per token gives a fast, realistic, and legible word-by-word flow
+
+    return () => clearInterval(interval);
+  }, [content, isStreaming, onFinished, onScroll]);
+
+  return (
+    <div className="w-full text-slate-200">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          table: ({ node, ...props }) => (
+            <div className="overflow-x-auto my-3 rounded-xl border border-slate-700/80 bg-slate-950/70 shadow-lg">
+              <table className="min-w-full divide-y divide-slate-800 text-xs sm:text-sm text-left" {...props} />
+            </div>
+          ),
+          thead: ({ node, ...props }) => (
+            <thead className="bg-slate-800/90 text-cyan-300 font-semibold" {...props} />
+          ),
+          th: ({ node, ...props }) => (
+            <th className="px-4 py-3 text-cyan-300 font-semibold tracking-wide border-b border-slate-700 whitespace-nowrap" {...props} />
+          ),
+          td: ({ node, ...props }) => (
+            <td className="px-4 py-3 text-slate-200 border-b border-slate-800/60 align-top" {...props} />
+          ),
+          tr: ({ node, ...props }) => (
+            <tr className="hover:bg-slate-800/40 transition-colors even:bg-slate-900/30" {...props} />
+          ),
+          h1: ({ node, ...props }) => (
+            <h1 className="text-xl font-bold text-white mt-4 mb-2 pb-1.5 border-b border-slate-800 flex items-center gap-2" {...props} />
+          ),
+          h2: ({ node, ...props }) => (
+            <h2 className="text-lg font-bold text-cyan-300 mt-4 mb-2 flex items-center gap-1.5" {...props} />
+          ),
+          h3: ({ node, ...props }) => (
+            <h3 className="text-base font-semibold text-indigo-300 mt-3 mb-1" {...props} />
+          ),
+          p: ({ node, ...props }) => (
+            <p className="mb-3 leading-relaxed text-slate-200" {...props} />
+          ),
+          ul: ({ node, ...props }) => (
+            <ul className="list-disc pl-5 my-2.5 space-y-1.5 text-slate-200" {...props} />
+          ),
+          ol: ({ node, ...props }) => (
+            <ol className="list-decimal pl-5 my-2.5 space-y-1.5 text-slate-200" {...props} />
+          ),
+          li: ({ node, ...props }) => (
+            <li className="leading-relaxed" {...props} />
+          ),
+          strong: ({ node, ...props }) => (
+            <strong className="font-semibold text-cyan-300" {...props} />
+          ),
+          blockquote: ({ node, ...props }) => (
+            <blockquote className="border-l-4 border-cyan-500 pl-4 py-1.5 my-3 bg-cyan-950/30 rounded-r-xl italic text-slate-300" {...props} />
+          ),
+          code: ({ node, inline, className, children, ...props }) => {
+            return inline ? (
+              <code className="px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 font-mono text-xs border border-slate-700" {...props}>
+                {children}
+              </code>
+            ) : (
+              <div className="relative my-3 rounded-xl bg-slate-950 border border-slate-800 overflow-hidden shadow-md">
+                <div className="flex items-center justify-between px-3 py-1.5 bg-slate-900 text-slate-400 text-xs border-b border-slate-800">
+                  <span className="font-mono">code</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(String(children).replace(/\n$/, ''));
+                      toast.success('Code copied!');
+                    }}
+                    className="hover:text-cyan-300 transition text-[11px] flex items-center gap-1 cursor-pointer"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <pre className="p-3 overflow-x-auto text-xs font-mono text-slate-200">
+                  <code {...props}>{children}</code>
+                </pre>
+              </div>
+            );
+          },
+        }}
+      >
+        {displayedText}
+      </ReactMarkdown>
+
+      {/* Realistic typing cursor while streaming */}
+      {!done && (
+        <span className="inline-block w-2 h-4 ml-1 bg-cyan-400 rounded-xs animate-pulse align-middle shadow-[0_0_8px_#22d3ee]" />
+      )}
+    </div>
+  );
+}
 
 export default function ChatbotPage() {
   const navigate = useNavigate();
@@ -363,6 +489,7 @@ export default function ChatbotPage() {
           content: res.data.message,
           pdfName: activePdf?.name || null,
           timestamp: res.data.timestamp || new Date().toISOString(),
+          isStreaming: true,
         };
 
         setMessages((prev) => [...prev, botMsgObj]);
@@ -841,9 +968,22 @@ export default function ChatbotPage() {
                       }`}
                     >
                       {/* Markdown rendered text */}
-                      <div className="prose prose-invert prose-sm max-w-none break-words space-y-2">
-                        <ReactMarkdown>{m.content}</ReactMarkdown>
-                      </div>
+                      {isUser ? (
+                        <p className="leading-relaxed whitespace-pre-wrap">{m.content}</p>
+                      ) : (
+                        <StreamingMarkdown
+                          content={m.content}
+                          isStreaming={!!m.isStreaming}
+                          onFinished={() => {
+                            setMessages((prev) =>
+                              prev.map((msg) =>
+                                msg._id === m._id ? { ...msg, isStreaming: false } : msg
+                              )
+                            );
+                          }}
+                          onScroll={(behavior) => scrollToBottom(behavior || 'smooth')}
+                        />
+                      )}
 
                       {/* Assistant Bubble Footer Tools */}
                       {!isUser && (
