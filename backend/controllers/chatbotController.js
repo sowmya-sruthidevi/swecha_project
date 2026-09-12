@@ -1,6 +1,14 @@
-import { PDFParse } from 'pdf-parse';
 import ChatSession from '../models/ChatSession.js';
 import ChatMessage from '../models/ChatMessage.js';
+
+let PDFParseClass = null;
+async function getPdfParser() {
+  if (!PDFParseClass) {
+    const mod = await import('pdf-parse');
+    PDFParseClass = mod.PDFParse || mod.default?.PDFParse || mod.default;
+  }
+  return PDFParseClass;
+}
 
 import fs from 'fs';
 import path from 'path';
@@ -264,8 +272,9 @@ export const uploadAndParsePdf = async (req, res) => {
 
     const { originalname, buffer, size } = req.file;
 
-    // Parse the PDF buffer using PDFParse class
-    const parser = new PDFParse({ data: buffer });
+    // Parse the PDF buffer using dynamically loaded PDFParse class
+    const PDFParser = await getPdfParser();
+    const parser = new PDFParser({ data: buffer });
     const parsedData = await parser.getText();
 
     const fullText = (parsedData.text || '').trim();

@@ -34,6 +34,9 @@ function getMongoUri() {
 }
 
 const connectDB = async () => {
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
+  }
   try {
     const uri = getMongoUri();
     if (!uri) {
@@ -41,6 +44,8 @@ const connectDB = async () => {
     }
     const conn = await mongoose.connect(uri, {
       dbName: 'study_group_finder',
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 10000,
     });
     console.log(`MongoDB connected: ${conn.connection.host}`);
     console.log(`Database: ${conn.connection.name}`);

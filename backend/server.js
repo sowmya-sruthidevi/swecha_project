@@ -22,20 +22,30 @@ import chatbotRoutes from './routes/chatbotRoutes.js';
 
 const app = express();
 
-connectDB();
+if (!process.env.VERCEL) {
+  connectDB();
+}
 
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3001',
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'https://swecha-project-ten.vercel.app'
-  ],
+  origin: (origin, callback) => {
+    // Allow local and any vercel preview/prod domains
+    if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('vercel.app')) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
   credentials: true
 }));
+
+// Ensure DB is connected for serverless invocations (e.g. Vercel)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+  } catch (e) {
+    // Fail soft
+  }
+  next();
+});
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
