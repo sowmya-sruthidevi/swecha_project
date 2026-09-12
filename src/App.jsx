@@ -11,12 +11,9 @@ import GroupDetails from './pages/GroupDetails.jsx';
 import Profile from './pages/Profile.jsx';
 import Notifications from './pages/Notifications.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
-import ChatbotLauncher from './components/ChatbotLauncher.jsx';
 
 function App() {
-  
-return (
-  <>
+  return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/signup" element={<Signup />} />
@@ -96,10 +93,7 @@ return (
 
       <Route path="*" element={<Home />} />
     </Routes>
-
-    <ChatbotLauncher />
-  </>
-);
+  );
 }
+
 export default App;
-  
