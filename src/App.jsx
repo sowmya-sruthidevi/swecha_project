@@ -97,7 +97,7 @@ return (
       <Route path="*" element={<Home />} />
     </Routes>
 
-    <ChatbotLasuncher />
+    <ChatbotLauncher />
   </>
 );
 }
