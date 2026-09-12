@@ -26,6 +26,7 @@ import {
   Menu,
   ChevronRight,
   Download,
+  Database,
 } from 'lucide-react';
 import { chatbotApi } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -186,6 +187,9 @@ export default function ChatbotPage() {
   // Copy state
   const [copiedId, setCopiedId] = useState(null);
 
+  // RAG Vector DB Status State
+  const [ragStats, setRagStats] = useState(null);
+
   const messagesEndRef = useRef(null);
 
   // Scroll to bottom
@@ -249,6 +253,15 @@ export default function ChatbotPage() {
     if (sessionId) {
       loadSessionMessages(sessionId);
     }
+    // Fetch RAG knowledge base statistics
+    chatbotApi
+      .getRagStats()
+      .then((res) => {
+        if (res.data?.success) {
+          setRagStats(res.data.stats);
+        }
+      })
+      .catch(() => {});
   }, [loadSessions, sessionId, loadSessionMessages]);
 
   // Save guest session IDs
@@ -488,6 +501,7 @@ export default function ChatbotPage() {
           role: 'assistant',
           content: res.data.message,
           pdfName: activePdf?.name || null,
+          ragSources: res.data.ragSources || [],
           timestamp: res.data.timestamp || new Date().toISOString(),
           isStreaming: true,
         };
@@ -762,6 +776,18 @@ export default function ChatbotPage() {
 
           {/* Action Tools */}
           <div className="flex items-center gap-2">
+            {/* RAG Vector DB Status Pill */}
+            <div
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-purple-950/60 border border-purple-500/30 text-purple-300 text-xs shadow-sm shadow-purple-500/10 cursor-help"
+              title="Retrieval-Augmented Generation (RAG) Vector Database Active: Real-time semantic retrieval from Study Techniques, Q&A, and Platform Datasets"
+            >
+              <Database className="w-3.5 h-3.5 text-purple-400" />
+              <span className="font-semibold text-[11px]">RAG Vector DB</span>
+              <span className="text-[10px] text-emerald-400 bg-emerald-950/80 border border-emerald-500/30 px-1.5 py-0.2 rounded-full font-mono">
+                {ragStats?.totalChunks || 33} Chunks
+              </span>
+            </div>
+
             {/* Voice Output Speaker Toggle */}
             <button
               onClick={() => {
@@ -891,24 +917,34 @@ export default function ChatbotPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
                   {[
                     {
-                      title: 'Explain Complex Theory',
-                      desc: 'Break down how Transformer neural networks work in simple terms',
-                      icon: '🧠',
+                      title: 'Study Techniques & Neuroscience',
+                      desc: 'Explain the Pomodoro Technique and the science behind 25/5 minute work intervals',
+                      icon: '⏳',
                     },
                     {
-                      title: 'Study Plan Generator',
-                      desc: 'Design a 7-day revision schedule for upcoming final exams',
-                      icon: '📅',
+                      title: 'Math: Fractional Division Intuition',
+                      desc: 'Why does dividing by a fraction mean multiplying by its reciprocal? Explain with examples',
+                      icon: '📐',
                     },
                     {
-                      title: 'Analyze Code or Architecture',
-                      desc: 'How do JWT tokens and MongoDB authentication work together?',
+                      title: 'DSA Study Group & Roadmap',
+                      desc: 'Tell me about the DSA Grinders study group, meeting schedules, and topics covered',
                       icon: '💻',
                     },
                     {
-                      title: 'Analyze Study1.pdf',
-                      desc: 'What are the business and technical requirements of Study Group Finder?',
-                      icon: '📄',
+                      title: 'Chemistry: SN1 vs SN2 Mechanisms',
+                      desc: 'Explain the difference between SN1 and SN2 reaction mechanisms with carbocation stability',
+                      icon: '🧪',
+                    },
+                    {
+                      title: 'Physics: Rayleigh Scattering',
+                      desc: 'Why is the sky blue during the day and red/orange at sunset according to Rayleigh scattering?',
+                      icon: '☀️',
+                    },
+                    {
+                      title: 'Platform Study Sessions & Streaks',
+                      desc: 'How do virtual study sessions work on this platform and how do I earn study streak badges?',
+                      icon: '🏆',
                     },
                   ].map((starter, i) => (
                     <button
@@ -983,6 +1019,31 @@ export default function ChatbotPage() {
                           }}
                           onScroll={(behavior) => scrollToBottom(behavior || 'smooth')}
                         />
+                      )}
+
+                      {/* RAG Verified Sources Citation Chips */}
+                      {!isUser && m.ragSources && m.ragSources.length > 0 && (
+                        <div className="mt-3.5 pt-2.5 border-t border-slate-800/80">
+                          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-cyan-300 mb-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                            <span>Verified Knowledge Sources (RAG Vector DB):</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {m.ragSources.map((src, sIdx) => (
+                              <div
+                                key={sIdx}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/90 border border-cyan-500/30 text-[11px] text-slate-300 hover:border-cyan-400 transition shadow-sm"
+                                title={`Relevance Match: ${Math.round((src.score || 0.8) * 100)}% | ID: ${src.chunkId}`}
+                              >
+                                <span className="text-cyan-400 text-xs">📚</span>
+                                <span className="font-medium text-cyan-200">{src.title}</span>
+                                <span className="text-[10px] text-slate-400 bg-slate-900/90 px-1.5 py-0.5 rounded border border-slate-700/60">
+                                  {src.category}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       )}
 
                       {/* Assistant Bubble Footer Tools */}

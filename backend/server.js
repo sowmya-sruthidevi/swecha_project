@@ -13,6 +13,7 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 import connectDB from './config/db.js';
+import { ingestKnowledgeBase } from './utils/ragService.js';
 
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
@@ -23,7 +24,11 @@ import chatbotRoutes from './routes/chatbotRoutes.js';
 const app = express();
 
 if (!process.env.VERCEL) {
-  connectDB();
+  connectDB().then(() => {
+    ingestKnowledgeBase().catch((err) => {
+      console.warn('Startup RAG ingestion notice:', err.message);
+    });
+  });
 }
 
 app.use(cors({

@@ -9,6 +9,8 @@ import {
   getSessionMessages,
   deleteSession,
   clearAllHistory,
+  getRagStats,
+  reindexRagKnowledgeBase,
 } from '../controllers/chatbotController.js';
 
 const router = express.Router();
@@ -67,5 +69,9 @@ router.delete('/sessions/:sessionId', optionalAuth, deleteSession);
 
 // Clear all history
 router.delete('/clear-all', optionalAuth, clearAllHistory);
+
+// RAG Vector Database stats & reindexing
+router.get('/rag/stats', getRagStats);
+router.post('/rag/reindex', optionalAuth, reindexRagKnowledgeBase);
 
 export default router;

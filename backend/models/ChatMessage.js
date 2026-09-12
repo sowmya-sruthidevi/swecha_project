@@ -29,6 +29,10 @@ const chatMessageSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    ragSources: {
+      type: Array,
+      default: [],
+    },
     timestamp: {
       type: Date,
       default: Date.now,

@@ -1,5 +1,10 @@
 import ChatSession from '../models/ChatSession.js';
 import ChatMessage from '../models/ChatMessage.js';
+import {
+  retrieveRelevantChunks,
+  getKnowledgeBaseStats,
+  ingestKnowledgeBase,
+} from '../utils/ragService.js';
 
 let PDFParseClass = null;
 async function getPdfParser() {
@@ -165,7 +170,40 @@ CRITICAL FORMATTING GUIDELINES FOR MAXIMUM READABILITY:
 
     const groqMessages = [systemPrompt];
 
-    // If PDF text is present, provide it as document context
+    // 1. Semantic RAG Retrieval from Knowledge Base Vector DB
+    let relevantChunks = [];
+    try {
+      relevantChunks = await retrieveRelevantChunks(message, 3, 0.16);
+      if (relevantChunks && relevantChunks.length > 0) {
+        console.log(`RAG: Retrieved ${relevantChunks.length} relevant chunks for query: "${message.slice(0, 40)}..."`);
+      }
+    } catch (ragErr) {
+      console.warn('RAG Retrieval warning:', ragErr.message);
+    }
+
+    // 2. Inject Verified Knowledge Base Context if found
+    if (relevantChunks && relevantChunks.length > 0) {
+      const ragContext = relevantChunks
+        .map(
+          (c, idx) =>
+            `[VERIFIED KNOWLEDGE SOURCE ${idx + 1} | Category: ${c.category} | Title: ${c.title} | ID: ${c.chunkId}]\n${c.content}`
+        )
+        .join('\n\n---\n\n');
+
+      groqMessages.push({
+        role: 'system',
+        content:
+          `=== VERIFIED KNOWLEDGE BASE CONTEXT (RAG VECTOR DB) ===\n` +
+          `The user's query matched the following verified knowledge records from our study platform's vector database:\n\n` +
+          `${ragContext}\n\n` +
+          `INSTRUCTIONS FOR SYNTHESIS:\n` +
+          `- Synthesize and incorporate the facts, formulas, step-by-step procedures, or platform details from the verified sources above.\n` +
+          `- State or cite the source title or category naturally when answering the user's question (e.g. "According to our Study Techniques guide..." or "Based on course syllabus...").\n` +
+          `- Maintain high visual clarity, structured formatting (headers, bullet points, tables when helpful), and friendly encouragement.`,
+      });
+    }
+
+    // 3. If PDF text is present, provide it as document context
     if (pdfText && pdfText.trim()) {
       const truncatedPdf = pdfText.length > 35000 ? pdfText.slice(0, 35000) + '\n...[Text truncated for size]...' : pdfText;
       groqMessages.push({
@@ -194,6 +232,13 @@ CRITICAL FORMATTING GUIDELINES FOR MAXIMUM READABILITY:
     // Call Groq API
     const aiResult = await callGroqChat(groqMessages);
 
+    const ragSourcesForClient = relevantChunks.map((c) => ({
+      chunkId: c.chunkId,
+      category: c.category,
+      title: c.title,
+      score: c.score,
+    }));
+
     // Save user message in MongoDB
     await ChatMessage.create({
       sessionId: currentSessionId,
@@ -205,13 +250,14 @@ CRITICAL FORMATTING GUIDELINES FOR MAXIMUM READABILITY:
       timestamp: new Date(),
     });
 
-    // Save assistant message in MongoDB
+    // Save assistant message in MongoDB with RAG sources
     const savedBotMsg = await ChatMessage.create({
       sessionId: currentSessionId,
       userId,
       role: 'assistant',
       content: aiResult.content,
       pdfName: pdfName || null,
+      ragSources: ragSourcesForClient,
       timestamp: new Date(),
     });
 
@@ -255,6 +301,7 @@ CRITICAL FORMATTING GUIDELINES FOR MAXIMUM READABILITY:
       sessionId: currentSessionId,
       sessionTitle: session.title,
       modelUsed: aiResult.modelUsed,
+      ragSources: ragSourcesForClient,
       messageId: savedBotMsg._id,
       timestamp: savedBotMsg.timestamp,
     });
@@ -443,3 +490,43 @@ export const clearAllHistory = async (req, res) => {
     });
   }
 };
+
+/**
+ * Get RAG Vector Database Statistics & Status
+ */
+export const getRagStats = async (req, res) => {
+  try {
+    const stats = await getKnowledgeBaseStats();
+    return res.status(200).json({
+      success: true,
+      stats,
+    });
+  } catch (error) {
+    console.error('RAG stats error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve RAG stats',
+    });
+  }
+};
+
+/**
+ * Re-index RAG Knowledge Base in Vector DB
+ */
+export const reindexRagKnowledgeBase = async (req, res) => {
+  try {
+    const chunks = await ingestKnowledgeBase(true);
+    return res.status(200).json({
+      success: true,
+      message: `Successfully indexed ${chunks.length} knowledge chunks in vector database`,
+      count: chunks.length,
+    });
+  } catch (error) {
+    console.error('RAG reindex error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to reindex RAG knowledge base',
+    });
+  }
+};
+

@@ -70,6 +70,8 @@ export const chatbotApi = {
   getSessionMessages: (sessionId) => api.get(`/chatbot/sessions/${sessionId}/messages`),
   deleteSession: (sessionId) => api.delete(`/chatbot/sessions/${sessionId}`),
   clearAllHistory: () => api.delete('/chatbot/clear-all'),
+  getRagStats: () => api.get('/chatbot/rag/stats'),
+  reindexRag: () => api.post('/chatbot/rag/reindex'),
 };
 
 export default api;

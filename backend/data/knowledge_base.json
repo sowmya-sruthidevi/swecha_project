@@ -1,0 +1,165 @@
+{
+  "1_study_techniques_and_learning_science": [
+    {
+      "id": "tech_001",
+      "topic": "Spaced Repetition",
+      "content": "Spaced repetition is a learning technique where review sessions are spaced out over increasing intervals of time instead of cramming. When you review material right before you're about to forget it, the memory trace strengthens more than reviewing something you already remember well. A common schedule reviews new material after 1 day, then 3 days, then 7 days, then 14 days, then monthly. Tools like Anki automate this by tracking how well you recalled each item and adjusting the next review interval accordingly. For a study group, this means group quiz sessions are more effective when spaced across weeks rather than concentrated the night before an exam."
+    },
+    {
+      "id": "tech_002",
+      "topic": "Active Recall",
+      "content": "Active recall means testing yourself on material rather than passively re-reading notes or highlighting text. Research in cognitive psychology consistently shows that retrieval practice (forcing your brain to pull information out of memory) produces stronger, more durable learning than re-reading the same material multiple times. Practical group applications include: closing the textbook and having group members quiz each other, doing practice problems from memory before checking solutions, and one member explaining a concept aloud to the rest of the group without notes (the 'Feynman technique')."
+    },
+    {
+      "id": "tech_003",
+      "topic": "Pomodoro Technique",
+      "content": "The Pomodoro Technique breaks work into 25-minute focused intervals separated by 5-minute breaks, with a longer 15-30 minute break after four intervals. The short, defined work period reduces the mental resistance to starting a task and helps maintain focus by making the work feel bounded rather than open-ended. In group study settings, running a shared Pomodoro timer keeps everyone's session synchronized -- members work silently during the 25-minute block and use the break to compare progress or ask quick questions before the next round starts."
+    },
+    {
+      "id": "tech_004",
+      "topic": "Group Study Best Practices",
+      "content": "Effective study groups tend to share a few traits: a capped group size (4-6 people keeps discussion manageable and ensures everyone participates), a defined agenda set before the session starts (rather than an open-ended 'let's study together'), rotating responsibility for leading each session or topic, and a clear end goal for each meeting (e.g. 'solve 10 practice problems' rather than 'review chapter 5'). Groups that assign pre-work -- each member attempts problems individually before the session -- get more out of group time than groups that solve problems together from scratch, since struggling individually first primes better questions and discussion."
+    },
+    {
+      "id": "tech_005",
+      "topic": "Interleaving",
+      "content": "Interleaving means mixing different topics or problem types within a single study session instead of blocking all practice on one topic before moving to the next. While blocked practice (all algebra, then all geometry) feels more comfortable and produces faster short-term improvement, interleaved practice (mixing algebra, geometry, and trigonometry problems) produces better long-term retention and transfer because it forces the brain to actively identify which strategy fits which problem, rather than following a memorized pattern for an entire block."
+    },
+    {
+      "id": "tech_006",
+      "topic": "Elaborative Interrogation",
+      "content": "Elaborative interrogation is the practice of asking 'why' and 'how' questions about facts you're learning, and trying to explain the underlying reasoning rather than just memorizing the fact itself. For example, instead of memorizing that 'mitochondria produce ATP,' asking 'why does the cell need a dedicated organelle for this rather than producing ATP elsewhere?' In group settings, this works well as a structured exercise: after covering a topic, each member takes turns posing a 'why' question to the group and the group works through an answer together."
+    },
+    {
+      "id": "tech_007",
+      "topic": "Managing Group Study Pitfalls",
+      "content": "Common failure modes in study groups include: social loafing (some members coast while others do the work), scope creep (sessions drift into unrelated conversation), and uneven preparation (one person ends up re-teaching material to everyone else). Mitigations include assigning specific pre-session tasks to each member, using a shared document to track what was covered and by whom, and setting a hard time limit per topic so the session doesn't stall on one person's confusion at the expense of the agenda."
+    }
+  ],
+  "2_subject_qa_samples": [
+    {
+      "id": "qa_math_001",
+      "subject": "Mathematics",
+      "question": "Why does dividing by a fraction mean multiplying by its reciprocal?",
+      "answer": "Dividing by a number asks 'how many times does this fit into the whole.' Dividing by 1/2 asks how many halves fit into a number, which is the same as asking how many times larger the number becomes if you double it -- i.e., multiplying by 2, the reciprocal of 1/2. This generalizes: dividing by a/b asks how many (a/b)-sized pieces fit into a quantity, which is equivalent to multiplying by b/a."
+    },
+    {
+      "id": "qa_math_002",
+      "subject": "Mathematics",
+      "question": "What's the intuition behind the chain rule in calculus?",
+      "answer": "The chain rule describes how a rate of change propagates through a composition of functions. If y depends on u, and u depends on x, then a small change in x causes a proportional change in u (scaled by du/dx), which in turn causes a proportional change in y (scaled by dy/du). The total effect on y from a change in x is the product of these two scaling factors: dy/dx = dy/du times du/dx."
+    },
+    {
+      "id": "qa_cs_001",
+      "subject": "Computer Science",
+      "question": "Why is a hash table's average lookup time O(1) if collisions can occur?",
+      "answer": "A well-designed hash table keeps the load factor (number of items divided by number of buckets) low and uses a hash function that distributes keys roughly uniformly. Under these conditions, each bucket holds only a small constant number of items on average, so resolving collisions within a bucket takes constant time on average. Worst-case lookup can degrade to O(n) if many keys collide into the same bucket, which is why resizing and good hash functions matter."
+    },
+    {
+      "id": "qa_cs_002",
+      "subject": "Computer Science",
+      "question": "What's the practical difference between BFS and DFS for graph traversal?",
+      "answer": "BFS explores all neighbors at the current depth before moving deeper, using a queue, and is well-suited for finding the shortest path in an unweighted graph. DFS explores as far as possible down one branch before backtracking, using a stack (or recursion), and is well-suited for tasks like detecting cycles, topological sorting, or exploring all possible states such as in maze-solving. BFS uses more memory for wide graphs since it holds an entire frontier; DFS uses more memory for deep graphs due to recursion depth."
+    },
+    {
+      "id": "qa_physics_001",
+      "subject": "Physics",
+      "question": "Why does a spinning ice skater speed up when pulling their arms in?",
+      "answer": "This follows from conservation of angular momentum. Angular momentum equals moment of inertia multiplied by angular velocity. Pulling the arms in reduces the moment of inertia (mass is now distributed closer to the rotation axis). Since angular momentum stays constant with no external torque, angular velocity must increase to compensate for the decreased moment of inertia."
+    },
+    {
+      "id": "qa_chem_001",
+      "subject": "Chemistry",
+      "question": "Why do SN1 reactions favor tertiary carbocations over primary ones?",
+      "answer": "SN1 reactions proceed through a carbocation intermediate, and the stability of that intermediate determines the reaction rate. Tertiary carbocations are more stable than primary ones because the surrounding alkyl groups donate electron density through hyperconjugation and induction, spreading out the positive charge. A more stable intermediate has a lower energy transition state leading to it, so the reaction proceeds faster with tertiary substrates."
+    }
+  ],
+  "3_platform_data": {
+    "faqs": [
+      {"id": "faq_001", "question": "How do I create a study group?", "answer": "Click 'Create Group' on the dashboard, pick a subject/tag, set a max group size, choose online or in-person, and add a short description of what you'll cover."},
+      {"id": "faq_002", "question": "How do I find a group for a specific subject?", "answer": "Use the search bar or subject filter on the dashboard. Filter by tag, meeting mode (online/offline), and group size."},
+      {"id": "faq_003", "question": "Can I join more than one study group?", "answer": "Yes, there's no limit. Many users join 2-3 groups across different subjects."},
+      {"id": "faq_004", "question": "What happens if my study group has no activity?", "answer": "Groups inactive for 30+ days are flagged as 'inactive' but not deleted. The creator gets a reminder to schedule a session or archive the group."},
+      {"id": "faq_005", "question": "How do I schedule a session for my group?", "answer": "Inside the group page, click 'Schedule Session', pick date/time/duration, and optionally add an agenda."},
+      {"id": "faq_006", "question": "Is there a way to see past session notes?", "answer": "Yes, each group has a 'Session History' tab with summaries, attendance, and shared resources."},
+      {"id": "faq_007", "question": "How do I leave a study group?", "answer": "Use the three-dot menu on the group page and select 'Leave Group'. Ownership transfers to the most active member if you're the creator."},
+      {"id": "faq_008", "question": "Can I use the chatbot to get study help directly?", "answer": "Yes, the chatbot can answer subject questions, suggest relevant groups, and summarize past session notes."},
+      {"id": "faq_009", "question": "How are groups ranked in search results?", "answer": "Ranking factors: recent activity, member count relative to max size, tag relevance, and average attendance rate."},
+      {"id": "faq_010", "question": "Can I mark a group as private/invite-only?", "answer": "Yes, toggle 'Private' when creating a group. It won't show in public search and requires an invite link."}
+    ],
+    "study_groups": [
+      {"id": "grp_101", "title": "DSA Grinders - Placement Prep", "tags": ["Data Structures", "Algorithms", "Placements"], "mode": "online", "max_size": 8, "current_size": 6, "description": "Daily 1-hour sessions solving LeetCode medium/hard problems, focused on arrays, trees, and DP."},
+      {"id": "grp_102", "title": "Organic Chem Study Circle", "tags": ["Chemistry", "Organic Chemistry", "NEET Prep"], "mode": "offline", "max_size": 6, "current_size": 6, "description": "Weekly sessions covering reaction mechanisms and named reactions for NEET aspirants."},
+      {"id": "grp_103", "title": "ML Fundamentals Reading Group", "tags": ["Machine Learning", "Python", "Statistics"], "mode": "online", "max_size": 10, "current_size": 4, "description": "Working through a structured ML course together with weekly assignment reviews."},
+      {"id": "grp_105", "title": "GATE CS Revision Squad", "tags": ["GATE", "Computer Science", "Competitive Exam"], "mode": "offline", "max_size": 12, "current_size": 9, "description": "Structured revision covering OS, DBMS, and CN with weekly mock tests."}
+    ],
+    "session_summaries": [
+      {"id": "sess_501", "group_id": "grp_101", "date": "2026-08-20", "summary": "Covered binary tree traversals and solved 4 LeetCode medium problems. Next: dynamic programming intro."},
+      {"id": "sess_504", "group_id": "grp_105", "date": "2026-08-25", "summary": "Mock test on OS (process scheduling, deadlocks). Average score 62%. Deadlock avoidance flagged as weak area."}
+    ],
+    "popular_search_tags": [
+      {"tag": "Data Structures", "search_count": 342},
+      {"tag": "Machine Learning", "search_count": 298},
+      {"tag": "GATE", "search_count": 271},
+      {"tag": "Organic Chemistry", "search_count": 210}
+    ]
+  },
+  "4_course_syllabi": [
+    {
+      "id": "syl_001",
+      "course_name": "Data Structures and Algorithms",
+      "level": "Undergraduate",
+      "modules": [
+        "Arrays, Strings, and Time Complexity Analysis",
+        "Linked Lists, Stacks, and Queues",
+        "Trees, Binary Search Trees, and Balanced Trees (AVL/Red-Black)",
+        "Graphs: BFS, DFS, Shortest Path Algorithms",
+        "Sorting and Searching Algorithms",
+        "Dynamic Programming",
+        "Greedy Algorithms",
+        "Hashing and Hash Tables"
+      ]
+    },
+    {
+      "id": "syl_002",
+      "course_name": "Organic Chemistry I",
+      "level": "Undergraduate",
+      "modules": [
+        "Structure and Bonding, Hybridization",
+        "Nomenclature of Organic Compounds",
+        "Stereochemistry",
+        "Alkyl Halides and Nucleophilic Substitution (SN1/SN2)",
+        "Elimination Reactions (E1/E2)",
+        "Alkenes and Alkynes: Addition Reactions",
+        "Spectroscopy: IR and NMR Basics"
+      ]
+    },
+    {
+      "id": "syl_003",
+      "course_name": "Introduction to Machine Learning",
+      "level": "Undergraduate/Graduate",
+      "modules": [
+        "Linear Regression and Gradient Descent",
+        "Logistic Regression and Classification",
+        "Bias-Variance Tradeoff, Regularization",
+        "Decision Trees and Ensemble Methods",
+        "Neural Networks Fundamentals",
+        "Unsupervised Learning: Clustering, PCA",
+        "Model Evaluation and Cross-Validation"
+      ]
+    },
+    {
+      "id": "syl_004",
+      "course_name": "Engineering Mechanics (Physics)",
+      "level": "Undergraduate",
+      "modules": [
+        "Kinematics in One and Two Dimensions",
+        "Newton's Laws of Motion",
+        "Work, Energy, and Power",
+        "Rotational Motion and Angular Momentum",
+        "Simple Harmonic Motion",
+        "Gravitation"
+      ]
+    }
+  ]
+}
