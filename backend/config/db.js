@@ -1,8 +1,41 @@
 import mongoose from 'mongoose';
 
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const FALLBACK_MONGO_URI = 'mongodb+srv://sruthinimmalaa206_db_user:sowmya0510@cluster0.qesbnze.mongodb.net/?appName=Cluster0';
+
+function getMongoUri() {
+  if (process.env.MONGODB_URI && process.env.MONGODB_URI.trim()) {
+    return process.env.MONGODB_URI.trim();
+  }
+  const candidatePaths = [
+    path.resolve(process.cwd(), 'backend', '.env'),
+    path.resolve(process.cwd(), '.env'),
+    path.resolve(__dirname, '..', '.env'),
+    path.resolve(__dirname, '..', '..', '.env'),
+  ];
+  for (const envPath of candidatePaths) {
+    try {
+      if (fs.existsSync(envPath)) {
+        const fileContent = fs.readFileSync(envPath, 'utf8');
+        const match = fileContent.match(/MONGODB_URI\s*=\s*([^\r\n]+)/);
+        if (match && match[1]) {
+          return match[1].trim().replace(/^["']|["']$/g, '');
+        }
+      }
+    } catch {}
+  }
+  return FALLBACK_MONGO_URI;
+}
+
 const connectDB = async () => {
   try {
-    const uri = process.env.MONGODB_URI;
+    const uri = getMongoUri();
     if (!uri) {
       throw new Error('MONGODB_URI is not defined in environment variables');
     }
