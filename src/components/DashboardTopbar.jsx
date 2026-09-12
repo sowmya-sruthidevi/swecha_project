@@ -1,11 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User, Bell, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Link } from 'react-router-dom';
+import { notificationApi } from '../services/api.js';
 
 export default function DashboardTopbar({ onToggleMobileSidebar }) {
   const { user } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await notificationApi.getNotifications();
+        if (res.data.success) {
+          setUnreadCount(res.data.unreadCount);
+        }
+      } catch (error) {
+        console.error('Failed to fetch unread notifications count', error);
+      }
+    };
+    fetchUnreadCount();
+  }, []);
 
   const initials = user?.fullName
     ?.split(' ')
@@ -35,10 +51,12 @@ export default function DashboardTopbar({ onToggleMobileSidebar }) {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          <button className="relative p-2.5 rounded-xl hover:bg-gray-100 transition-colors group">
+          <Link to="/notifications" className="relative p-2.5 rounded-xl hover:bg-gray-100 transition-colors group block">
             <Bell className="w-5 h-5 text-gray-500 group-hover:text-gray-700" />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
-          </button>
+            {unreadCount > 0 && (
+              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+            )}
+          </Link>
 
           <div className="relative">
             <button

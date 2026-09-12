@@ -29,7 +29,7 @@ const studyGroupSchema = new mongoose.Schema(
     },
     location: {
       type: String,
-      required: [true, 'Location is required'],
+      default: '',
       trim: true,
     },
     meetingLink: {
@@ -44,6 +44,11 @@ const studyGroupSchema = new mongoose.Schema(
       max: [50, 'Maximum 50 members allowed'],
       default: 8,
     },
+    mode: {
+      type: String,
+      enum: ['Offline', 'Online'],
+      default: 'Offline',
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -53,6 +58,21 @@ const studyGroupSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
+      },
+    ],
+    resources: [
+      {
+        filename: String,
+        originalName: String,
+        url: String,
+        uploadedBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
+        uploadedAt: {
+          type: Date,
+          default: Date.now,
+        },
       },
     ],
     status: {
