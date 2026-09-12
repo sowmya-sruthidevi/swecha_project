@@ -1,9 +1,13 @@
 import { Bot, ExternalLink } from 'lucide-react';
 
-const CHATBOT_URL = 'http://localhost:3000';
+const CHATBOT_URL = import.meta.env.VITE_CHATBOT_URL || (import.meta.env.DEV ? 'http://localhost:3000' : '');
 
 export default function ChatbotLauncher() {
   const openChatbot = () => {
+    if (!CHATBOT_URL) {
+      return;
+    }
+
     window.open(CHATBOT_URL, '_blank', 'noopener,noreferrer');
   };
 
@@ -12,8 +16,9 @@ export default function ChatbotLauncher() {
       type="button"
       className="chatbot-launcher"
       onClick={openChatbot}
+      disabled={!CHATBOT_URL}
       aria-label="Open Nexus AI chatbot in a new tab"
-      title="Open Nexus AI chatbot"
+      title={CHATBOT_URL ? 'Open Nexus AI chatbot' : 'Chatbot is not configured'}
     >
       <span className="chatbot-launcher__halo" aria-hidden="true" />
       <span className="chatbot-launcher__antenna" aria-hidden="true" />
