@@ -8,7 +8,7 @@ const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 async function callGroqChat(messages, preferredModel) {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    throw new Error('GROQ_API_KEY is not configured in the server environment');
+    throw new Error('GROQ_API_KEY is not configured in the server environment. Please set GROQ_API_KEY in .env');
   }
 
   const modelsToTry = [
