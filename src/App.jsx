@@ -9,6 +9,7 @@ import EditGroup from './pages/EditGroup.jsx';
 import MyGroups from './pages/MyGroups.jsx';
 import GroupDetails from './pages/GroupDetails.jsx';
 import Profile from './pages/Profile.jsx';
+import Notifications from './pages/Notifications.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 
 function App() {
@@ -70,6 +71,14 @@ function App() {
         element={
           <ProtectedRoute>
             <Profile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/notifications"
+        element={
+          <ProtectedRoute>
+            <Notifications />
           </ProtectedRoute>
         }
       />

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import StudyGroup from '../models/StudyGroup.js';
 import User from '../models/User.js';
+import Notification from '../models/Notification.js';
 
 export const createGroup = async (req, res) => {
   try {
@@ -13,10 +14,19 @@ export const createGroup = async (req, res) => {
       location,
       meetingLink,
       maxMembers,
+      mode,
     } = req.body;
 
-    if (!groupName || !subject || !description || !location) {
+    if (!groupName || !subject || !description) {
       return res.status(400).json({ message: 'Please provide all required fields' });
+    }
+
+    if (mode === 'Offline' && !location) {
+      return res.status(400).json({ message: 'Location is required for offline meetings' });
+    }
+    
+    if (mode === 'Online' && !meetingLink) {
+      return res.status(400).json({ message: 'Meeting link is required for online meetings' });
     }
 
     const creator = await User.findById(req.user._id);
@@ -43,9 +53,10 @@ export const createGroup = async (req, res) => {
       description,
       date: date || '',
       time: time || '',
-      location,
+      location: location || '',
       meetingLink: meetingLink || '',
       maxMembers: maxMembers || 8,
+      mode: mode || 'Offline',
       createdBy: req.user._id,
       creatorName: creator.fullName,
       members: [req.user._id],
@@ -62,6 +73,23 @@ export const createGroup = async (req, res) => {
         groupId: group._id.toString(),
       },
     });
+
+    // Broadcast notification to all other users
+    try {
+      const users = await User.find({ _id: { $ne: req.user._id } });
+      const notifications = users.map((user) => ({
+        userId: user._id,
+        message: `"${groupName}" is live. Share it with your classmates.`,
+        relatedGroupId: group._id,
+        type: 'group_created',
+      }));
+      if (notifications.length > 0) {
+        await Notification.insertMany(notifications);
+      }
+    } catch (notifErr) {
+      console.error('Error creating notifications:', notifErr);
+      // We don't fail the request if notifications fail
+    }
   } catch (error) {
     console.error('Create group error:', error);
     res.status(500).json({ message: 'Server error while creating group' });
@@ -70,12 +98,24 @@ export const createGroup = async (req, res) => {
 
 export const getGroups = async (req, res) => {
   try {
-    const { subject, search, sort = 'newest' } = req.query;
+    const { subject, search, sort = 'newest', mode, sessionStatus } = req.query;
 
     let query = { status: 'active' };
 
     if (subject && subject !== 'All Subjects') {
       query.subject = subject;
+    }
+
+    if (mode && mode !== 'All Modes') {
+      query.mode = mode;
+    }
+
+    if (sessionStatus === 'Upcoming only') {
+      // Basic date comparison (YYYY-MM-DD string)
+      const today = new Date().toISOString().split('T')[0];
+      query.date = { $gte: today };
+    } else if (sessionStatus === 'Open seats only') {
+      query.$expr = { $lt: [{ $size: '$members' }, '$maxMembers'] };
     }
 
     if (search) {
@@ -126,7 +166,8 @@ export const getGroup = async (req, res) => {
 
     const group = await StudyGroup.findById(id)
       .populate('createdBy', 'fullName email')
-      .populate('members', 'fullName email');
+      .populate('members', 'fullName email')
+      .populate('resources.uploadedBy', 'fullName');
 
     if (!group) {
       return res.status(404).json({ message: 'Group not found' });
@@ -158,6 +199,7 @@ export const updateGroup = async (req, res) => {
       location,
       meetingLink,
       maxMembers,
+      mode,
     } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -180,6 +222,7 @@ export const updateGroup = async (req, res) => {
     if (time !== undefined) group.time = time;
     if (location !== undefined) group.location = location;
     if (meetingLink !== undefined) group.meetingLink = meetingLink;
+    if (mode !== undefined) group.mode = mode;
     if (maxMembers !== undefined) {
       if (maxMembers < 2) return res.status(400).json({ message: 'Min 2 members required' });
       if (maxMembers < group.members.length) {
@@ -189,7 +232,6 @@ export const updateGroup = async (req, res) => {
       }
       group.maxMembers = maxMembers;
     }
-
     const updatedGroup = await group.save();
     await updatedGroup.populate('createdBy', 'fullName email');
     await updatedGroup.populate('members', 'fullName email');
@@ -404,5 +446,43 @@ export const getPublicStats = async (req, res) => {
       success: true,
       stats: { totalGroups: 0, totalUsers: 0 },
     });
+  }
+};
+
+export const uploadResource = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+
+    const group = await StudyGroup.findById(req.params.id);
+    if (!group) {
+      return res.status(404).json({ success: false, message: 'Group not found' });
+    }
+
+    // Optional: check if user is member
+    const isMember = group.members.some(memberId => memberId.toString() === req.user._id.toString());
+    if (!isMember) {
+      return res.status(403).json({ success: false, message: 'Only members can upload resources' });
+    }
+
+    const newResource = {
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      url: `/uploads/${req.file.filename}`,
+      uploadedBy: req.user._id
+    };
+
+    group.resources.push(newResource);
+    await group.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Resource uploaded successfully',
+      resource: newResource
+    });
+  } catch (error) {
+    console.error('Upload resource error:', error);
+    res.status(500).json({ success: false, message: 'Failed to upload resource' });
   }
 };

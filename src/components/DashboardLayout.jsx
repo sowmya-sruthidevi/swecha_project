@@ -15,7 +15,7 @@ export default function DashboardLayout({ children, active }) {
       />
 
       <div
-        className={`lg:hidden z-40 transition-transform duration-300 ${
+        className={`fixed inset-y-0 left-0 z-40 lg:hidden transition-transform duration-300 ${
           mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >

@@ -1,19 +1,38 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Home, Compass, PlusCircle, Users, User, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { BookOpen, Home, Compass, PlusCircle, Users, User, LogOut, ChevronLeft, ChevronRight, Bell } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import toast from 'react-hot-toast';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { notificationApi } from '../services/api.js';
 
 export default function Sidebar({ active }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await notificationApi.getNotifications();
+        if (res.data.success) {
+          setUnreadCount(res.data.unreadCount);
+        }
+      } catch (error) {
+        console.error('Failed to fetch unread notifications count', error);
+      }
+    };
+    if (user) {
+      fetchUnreadCount();
+    }
+  }, [user]);
 
   const menuItems = [
     { name: 'Dashboard', icon: Home, href: '/dashboard', key: 'dashboard' },
     { name: 'Explore Groups', icon: Compass, href: '/explore', key: 'explore' },
     { name: 'Create Study Group', icon: PlusCircle, href: '/create-group', key: 'create' },
     { name: 'My Study Groups', icon: Users, href: '/my-groups', key: 'mygroups' },
+    { name: 'Notifications', icon: Bell, href: '/notifications', key: 'notifications' },
     { name: 'Profile', icon: User, href: '/profile', key: 'profile' },
   ];
 
@@ -55,7 +74,7 @@ export default function Sidebar({ active }) {
             <Link
               key={item.key}
               to={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 group ${
+              className={`relative flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 group ${
                 isActive
                   ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/25'
                   : 'text-gray-600 hover:bg-gray-50 hover:text-primary-600'
@@ -63,7 +82,15 @@ export default function Sidebar({ active }) {
               title={collapsed ? item.name : undefined}
             >
               <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? '' : 'group-hover:scale-110 transition-transform'}`} />
-              {!collapsed && <span className="whitespace-nowrap">{item.name}</span>}
+              {!collapsed && <span className="whitespace-nowrap flex-1">{item.name}</span>}
+              {!collapsed && item.key === 'notifications' && unreadCount > 0 && (
+                <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  {unreadCount}
+                </span>
+              )}
+              {collapsed && item.key === 'notifications' && unreadCount > 0 && (
+                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+              )}
             </Link>
           );
         })}

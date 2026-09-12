@@ -49,6 +49,15 @@ export const groupApi = {
   leaveGroup: (id) => api.post(`/groups/${id}/leave`),
   getDashboardStats: () => api.get('/groups/dashboard-stats'),
   getPublicStats: () => api.get('/groups/public-stats'),
+  uploadResource: (id, formData) => api.post(`/groups/${id}/resources`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+};
+
+export const notificationApi = {
+  getNotifications: () => api.get('/notifications'),
+  markAsRead: (id) => api.put(`/notifications/${id}/read`),
+  markAllAsRead: () => api.put('/notifications/mark-all-read'),
 };
 
 export default api;

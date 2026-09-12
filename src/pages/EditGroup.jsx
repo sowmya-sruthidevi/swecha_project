@@ -16,6 +16,8 @@ import {
   FileText,
   Users,
   Clock,
+  Video,
+  Monitor,
 } from 'lucide-react';
 import { parseTimeParts, to24Hour } from '../utils/time.js';
 
@@ -50,6 +52,7 @@ export default function EditGroup() {
     location: '',
     meetingLink: '',
     maxMembers: 8,
+    mode: 'Offline',
   });
   const [timeHhmm, setTimeHhmm] = useState(defaultTime.hhmm);
   const [timePeriod, setTimePeriod] = useState(defaultTime.period);
@@ -72,6 +75,7 @@ export default function EditGroup() {
           location: g.location || '',
           meetingLink: g.meetingLink || '',
           maxMembers: g.maxMembers || 8,
+          mode: g.mode || 'Offline',
         });
       } catch {
         toast.error('Failed to load group');
@@ -99,7 +103,12 @@ export default function EditGroup() {
     if (!form.subject) e.subject = 'Please select a subject';
     if (!form.description.trim()) e.description = 'Description is required';
     else if (form.description.length < 10) e.description = 'Description must be at least 10 characters';
-    if (!form.location.trim()) e.location = 'Location is required';
+    if (form.mode === 'Offline' && !form.location.trim()) {
+      e.location = 'Location is required for offline meetings';
+    }
+    if (form.mode === 'Online' && !form.meetingLink.trim()) {
+      e.meetingLink = 'Meeting link is required for online meetings';
+    }
     if (form.maxMembers < 2) e.maxMembers = 'Min 2 members required';
     if (form.maxMembers > 50) e.maxMembers = 'Max 50 members allowed';
     setErrors(e);
@@ -223,6 +232,37 @@ export default function EditGroup() {
           <div className="pt-4 border-t border-gray-100">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Meeting Details</h3>
             <div className="grid sm:grid-cols-2 gap-5">
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Mode <span className="text-red-500">*</span>
+                </label>
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, mode: 'Offline' }))}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 transition-all font-semibold ${
+                      form.mode === 'Offline'
+                        ? 'border-primary-500 bg-primary-50 text-primary-700'
+                        : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    <MapPin className="w-5 h-5" />
+                    Offline
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, mode: 'Online' }))}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 transition-all font-semibold ${
+                      form.mode === 'Online'
+                        ? 'border-primary-500 bg-primary-50 text-primary-700'
+                        : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    <Video className="w-5 h-5" />
+                    Online
+                  </button>
+                </div>
+              </div>
               <InputField
                 label="Date"
                 type="date"
@@ -256,23 +296,33 @@ export default function EditGroup() {
                   Selected: {timeHhmm ? `${timeHhmm} ${timePeriod}` : 'Not set'}
                 </p>
               </div>
-              <InputField
-                label="Location"
-                name="location"
-                value={form.location}
-                onChange={handleChange}
-                icon={MapPin}
-                error={errors.location}
-                required
-              />
-              <InputField
-                label="Meeting Link"
-                type="url"
-                name="meetingLink"
-                value={form.meetingLink}
-                onChange={handleChange}
-                icon={LinkIcon}
-              />
+              {form.mode === 'Offline' && (
+                <div className="sm:col-span-2">
+                  <InputField
+                    label="Location"
+                    name="location"
+                    value={form.location}
+                    onChange={handleChange}
+                    icon={MapPin}
+                    error={errors.location}
+                    required={form.mode === 'Offline'}
+                  />
+                </div>
+              )}
+              {form.mode === 'Online' && (
+                <div className="sm:col-span-2">
+                  <InputField
+                    label="Meeting Link"
+                    type="url"
+                    name="meetingLink"
+                    value={form.meetingLink}
+                    onChange={handleChange}
+                    icon={LinkIcon}
+                    error={errors.meetingLink}
+                    required={form.mode === 'Online'}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
