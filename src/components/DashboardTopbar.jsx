@@ -34,12 +34,6 @@ export default function DashboardTopbar({ onToggleMobileSidebar }) {
     <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100">
       <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16 lg:h-20">
         <div className="flex items-center gap-4">
-          <button
-            onClick={onToggleMobileSidebar}
-            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <Menu className="w-5 h-5 text-gray-600" />
-          </button>
           <div className="hidden sm:block">
             <h1 className="text-lg font-bold text-gray-900">
               Welcome back, {user?.fullName?.split(' ')[0] || 'Student'} 👋

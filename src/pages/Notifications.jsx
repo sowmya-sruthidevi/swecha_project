@@ -63,9 +63,8 @@ export default function Notifications() {
         />
       )}
       <div
-        className={`fixed inset-y-0 left-0 transform ${
-          mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:hidden transition-transform duration-300 ease-in-out z-40 w-64 bg-white`}
+        className={`fixed inset-y-0 left-0 transform ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } lg:hidden transition-transform duration-300 ease-in-out z-40 w-64 bg-white`}
       >
         <Sidebar active="notifications" />
       </div>
@@ -82,7 +81,7 @@ export default function Notifications() {
                   Everything happening in your study groups
                 </p>
               </div>
-              
+
               <div className="flex items-center gap-4">
                 <span className="text-sm font-medium text-gray-500">
                   {unreadCount} unread
@@ -117,33 +116,28 @@ export default function Notifications() {
                   <div
                     key={notification._id}
                     onClick={() => !notification.isRead && handleMarkRead(notification._id)}
-                    className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer flex gap-4 sm:gap-5 ${
-                      notification.isRead
+                    className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer flex gap-4 sm:gap-5 ${notification.isRead
                         ? 'bg-white border-gray-100 hover:border-gray-200'
                         : 'bg-primary-50/50 border-primary-100 hover:bg-primary-50'
-                    }`}
+                      }`}
                   >
                     <div className="flex-shrink-0 mt-1">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        notification.isRead ? 'bg-gray-100' : 'bg-primary-100'
-                      }`}>
-                        <Bell className={`w-5 h-5 ${
-                          notification.isRead ? 'text-gray-500' : 'text-primary-600'
-                        }`} />
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${notification.isRead ? 'bg-gray-100' : 'bg-primary-100'
+                        }`}>
+                        <Bell className={`w-5 h-5 ${notification.isRead ? 'text-gray-500' : 'text-primary-600'
+                          }`} />
                       </div>
                     </div>
-                    
+
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <p className={`text-sm font-medium ${
-                            notification.isRead ? 'text-gray-900' : 'text-gray-900'
-                          }`}>
+                          <p className={`text-sm font-medium ${notification.isRead ? 'text-gray-900' : 'text-gray-900'
+                            }`}>
                             Study group created
                           </p>
-                          <p className={`mt-1 text-sm ${
-                            notification.isRead ? 'text-gray-500' : 'text-gray-700'
-                          }`}>
+                          <p className={`mt-1 text-sm ${notification.isRead ? 'text-gray-500' : 'text-gray-700'
+                            }`}>
                             {notification.message}
                           </p>
                         </div>
@@ -151,7 +145,7 @@ export default function Notifications() {
                           <span className="w-2.5 h-2.5 rounded-full bg-primary-500 flex-shrink-0 mt-1.5" />
                         )}
                       </div>
-                      
+
                       <div className="mt-2 flex items-center gap-2 text-xs text-gray-400">
                         <Clock className="w-3.5 h-3.5" />
                         {new Date(notification.createdAt).toLocaleString()}
